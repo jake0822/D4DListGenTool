@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-white rounded-xl shadow p-6">
+    <h1 class="text-2xl font-bold mb-4">Driving for Dollars - Leon County, FL</h1>
+    <label for="addressSearch" class="block text-sm font-medium mb-2">Search Address</label>
+    <input id="addressSearch" type="text" placeholder="Start typing address..." class="w-full text-lg p-4 border rounded-lg" autocomplete="off" aria-label="Search Leon County property address" />
+    <ul id="searchResults" class="border rounded-lg mt-2 hidden bg-white" role="listbox"></ul>
+
+    <form method="post" action="/properties/add" class="mt-4" id="addPropertyForm">
+        <input type="hidden" name="street_address" id="street_address" />
+        <input type="hidden" name="city" id="city" />
+        <input type="hidden" name="state" id="state" />
+        <input type="hidden" name="zip_code" id="zip_code" />
+        <input type="hidden" name="latitude" id="latitude" />
+        <input type="hidden" name="longitude" id="longitude" />
+        <button id="addButton" type="submit" disabled class="w-full sm:w-auto px-6 py-4 rounded-lg bg-slate-300 text-slate-500 font-semibold">Add Property</button>
+    </form>
+</section>
+
+<script>
+const input = document.getElementById('addressSearch');
+const resultsList = document.getElementById('searchResults');
+const addButton = document.getElementById('addButton');
+let selected = null;
+let activeIndex = -1;
+
+const fields = {
+  street_address: document.getElementById('street_address'),
+  city: document.getElementById('city'),
+  state: document.getElementById('state'),
+  zip_code: document.getElementById('zip_code'),
+  latitude: document.getElementById('latitude'),
+  longitude: document.getElementById('longitude')
+};
+
+function resetSelection() {
+  selected = null;
+  Object.values(fields).forEach((f) => (f.value = ''));
+  addButton.disabled = true;
+  addButton.className = 'w-full sm:w-auto px-6 py-4 rounded-lg bg-slate-300 text-slate-500 font-semibold';
+}
+
+function applySelection(item) {
+  selected = item;
+  input.value = item.display_name;
+  fields.street_address.value = item.street_address || '';
+  fields.city.value = item.city || '';
+  fields.state.value = item.state || 'Florida';
+  fields.zip_code.value = item.zip_code || '';
+  fields.latitude.value = item.latitude || '';
+  fields.longitude.value = item.longitude || '';
+  addButton.disabled = false;
+  addButton.className = 'w-full sm:w-auto px-6 py-4 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-500';
+  resultsList.classList.add('hidden');
+}
+
+async function searchAddresses(value) {
+  if (value.trim().length < 3) {
+    resultsList.classList.add('hidden');
+    resultsList.innerHTML = '';
+    return;
+  }
+
+  const response = await fetch(`/api/address-search?q=${encodeURIComponent(value)}`);
+  const data = await response.json();
+
+  resultsList.innerHTML = '';
+  if (!Array.isArray(data) || data.length === 0) {
+    resultsList.classList.add('hidden');
+    return;
+  }
+
+  data.forEach((item) => {
+    const li = document.createElement('li');
+    li.textContent = item.display_name;
+    li.className = 'p-3 border-b cursor-pointer hover:bg-slate-100';
+    li.setAttribute('role', 'option');
+    li.setAttribute('tabindex', '0');
+    li.addEventListener('click', () => applySelection(item));
+    li.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        applySelection(item);
+      }
+    });
+    resultsList.appendChild(li);
+  });
+  resultsList.classList.remove('hidden');
+}
+
+let timeout;
+input.addEventListener('input', (event) => {
+  resetSelection();
+  clearTimeout(timeout);
+  timeout = setTimeout(() => searchAddresses(event.target.value), 250);
+});
+
+input.addEventListener('keydown', (event) => {
+  const options = Array.from(resultsList.querySelectorAll('[role="option"]'));
+  if (event.key === 'Escape') {
+    resultsList.classList.add('hidden');
+    activeIndex = -1;
+    return;
+  }
+
+  if (!options.length) return;
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    activeIndex = (activeIndex + 1) % options.length;
+    options[activeIndex].focus();
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    activeIndex = (activeIndex - 1 + options.length) % options.length;
+    options[activeIndex].focus();
+  } else if (event.key === 'Enter' && activeIndex >= 0) {
+    event.preventDefault();
+    options[activeIndex].click();
+  }
+});
+</script>
+{% endblock %}
