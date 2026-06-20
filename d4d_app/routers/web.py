@@ -19,7 +19,7 @@ templates = Jinja2Templates(directory="templates")
 VALID_STATUSES = ["TO_CALL", "CALLED", "FOLLOW_UP", "NOT_INTERESTED", "UNDER_CONTRACT"]
 
 
-@router.get("/")
+@router.get("/", name="home")
 async def home(request: Request):
     return templates.TemplateResponse(request, "index.html", {})
 
@@ -51,10 +51,10 @@ async def add_property(
             "longitude": longitude,
         },
     )
-    return RedirectResponse(url=f"/property/{lead.id}", status_code=303)
+    return RedirectResponse(url=str(router.url_path_for("property_detail", lead_id=str(lead.id))), status_code=303)
 
 
-@router.get("/leads")
+@router.get("/leads", name="leads_dashboard")
 async def leads_dashboard(request: Request, status: str | None = Query(default=None), db: Session = Depends(get_db)):
     stmt = select(Lead)
     if status in VALID_STATUSES:
@@ -72,7 +72,7 @@ async def leads_dashboard(request: Request, status: str | None = Query(default=N
     )
 
 
-@router.get("/property/{lead_id}")
+@router.get("/property/{lead_id}", name="property_detail")
 async def property_detail(lead_id: int, request: Request, db: Session = Depends(get_db)):
     lead = db.get(Lead, lead_id)
     if not lead:
@@ -108,7 +108,7 @@ async def update_property(
     lead.notes = notes.strip() or None
     lead.lead_status = lead_status if lead_status in VALID_STATUSES else "TO_CALL"
     db.commit()
-    return RedirectResponse(url=f"/property/{lead_id}", status_code=303)
+    return RedirectResponse(url=str(router.url_path_for("property_detail", lead_id=str(lead.id))), status_code=303)
 
 
 @router.post("/property/{lead_id}/calls")
@@ -131,11 +131,11 @@ async def add_call_history(
             follow_up_date = None
 
     entry = CallHistory(
-        property_id=lead_id,
+        property_id=lead.id,
         result=result.strip() or None,
         notes=notes.strip() or None,
         next_follow_up_date=follow_up_date,
     )
     db.add(entry)
     db.commit()
-    return RedirectResponse(url=f"/property/{lead_id}", status_code=303)
+    return RedirectResponse(url=str(router.url_path_for("property_detail", lead_id=str(lead.id))), status_code=303)
