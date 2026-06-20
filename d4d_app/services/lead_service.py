@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
