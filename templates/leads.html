@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="bg-white rounded-xl shadow p-4">
+    <div class="flex flex-col sm:flex-row sm:justify-between gap-3 mb-4">
+        <h1 class="text-xl font-bold">Leads</h1>
+        <form method="get" action="/leads" class="flex gap-2">
+            <select name="status" class="border rounded-lg p-2">
+                <option value="">All Statuses</option>
+                {% for status in statuses %}
+                <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+            <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Filter</button>
+        </form>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left border-b">
+                    <th class="py-2">Address</th>
+                    <th class="py-2">Owner</th>
+                    <th class="py-2">Phone</th>
+                    <th class="py-2">Status</th>
+                    <th class="py-2">Date Added</th>
+                    <th class="py-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for lead in leads %}
+                <tr class="border-b">
+                    <td class="py-2">{{ lead.street_address }}, {{ lead.city }}, {{ lead.state }} {{ lead.zip_code }}</td>
+                    <td class="py-2">{{ lead.owner_name or 'Unknown' }}</td>
+                    <td class="py-2">{{ lead.phone_number or '-' }}</td>
+                    <td class="py-2">
+                        <span class="px-2 py-1 rounded text-white text-xs
+                            {% if lead.lead_status == 'TO_CALL' %}bg-amber-500
+                            {% elif lead.lead_status == 'CALLED' %}bg-sky-500
+                            {% elif lead.lead_status == 'FOLLOW_UP' %}bg-violet-500
+                            {% elif lead.lead_status == 'UNDER_CONTRACT' %}bg-emerald-600
+                            {% else %}bg-slate-500{% endif %}">
+                            {{ lead.lead_status }}
+                        </span>
+                    </td>
+                    <td class="py-2">{{ lead.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td class="py-2"><a href="/property/{{ lead.id }}" class="px-3 py-2 bg-slate-700 text-white rounded-lg">View Details</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
