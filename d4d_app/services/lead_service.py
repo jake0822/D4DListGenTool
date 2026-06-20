@@ -85,7 +85,7 @@ def _calculate_lead_score(absentee_owner: bool, years_owned: int | None, propert
     if years_owned is not None and years_owned >= 10:
         score += 25
     if not any(
-        [
+        (
             property_data.owner_name,
             property_data.parcel_id,
             property_data.property_type,
@@ -93,7 +93,7 @@ def _calculate_lead_score(absentee_owner: bool, years_owned: int | None, propert
             property_data.year_built,
             property_data.market_value,
             property_data.assessed_value,
-        ]
+        )
     ):
         score += 10
     return score

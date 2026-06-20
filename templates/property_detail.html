@@ -4,7 +4,7 @@
 <section class="grid lg:grid-cols-3 gap-4">
     <div class="bg-white rounded-xl shadow p-4 lg:col-span-2">
         <h1 class="text-xl font-bold mb-3">{{ lead.street_address }}, {{ lead.city }}, {{ lead.state }} {{ lead.zip_code }}</h1>
-        <p class="text-sm mb-3">Lead Score: <span class="font-semibold">{{ lead.lead_score }}</span> {% if lead.absentee_owner == 1 %}<span class="ml-2 text-amber-600" aria-label="Absentee owner indicator">Absentee Owner</span>{% endif %}</p>
+        <p class="text-sm mb-3">Lead Score: <span class="font-semibold">{{ lead.lead_score }}</span> {% if lead.absentee_owner == 1 %}<span class="ml-2 text-amber-600">Absentee Owner</span>{% endif %}</p>
 
         <div class="grid sm:grid-cols-2 gap-2 text-sm mb-4">
             <p><strong>Owner:</strong> {{ lead.owner_name or 'Unknown' }}</p>
