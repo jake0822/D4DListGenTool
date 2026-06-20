@@ -51,7 +51,7 @@ async def add_property(
             "longitude": longitude,
         },
     )
-    return RedirectResponse(url=str(router.url_path_for("property_detail", lead_id=str(lead.id))), status_code=303)
+    return RedirectResponse(url=router.url_path_for("property_detail", lead_id=str(lead.id)), status_code=303)
 
 
 @router.get("/leads", name="leads_dashboard")
@@ -108,7 +108,7 @@ async def update_property(
     lead.notes = notes.strip() or None
     lead.lead_status = lead_status if lead_status in VALID_STATUSES else "TO_CALL"
     db.commit()
-    return RedirectResponse(url=str(router.url_path_for("property_detail", lead_id=str(lead.id))), status_code=303)
+    return RedirectResponse(url=router.url_path_for("property_detail", lead_id=str(lead.id)), status_code=303)
 
 
 @router.post("/property/{lead_id}/calls")
@@ -138,4 +138,4 @@ async def add_call_history(
     )
     db.add(entry)
     db.commit()
-    return RedirectResponse(url=str(router.url_path_for("property_detail", lead_id=str(lead.id))), status_code=303)
+    return RedirectResponse(url=router.url_path_for("property_detail", lead_id=str(lead.id)), status_code=303)

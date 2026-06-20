@@ -27,6 +27,8 @@ Set environment variables as needed:
 - `NOMINATIM_BASE_URL` (default: `https://nominatim.openstreetmap.org`)
 - `NOMINATIM_USER_AGENT` (set to your contact-friendly app identifier)
 - `LEON_PROPERTY_SEARCH_URL` (optional endpoint for Leon County property data lookup)
+- `APP_HOST` (default: `127.0.0.1`; use `0.0.0.0` to expose on LAN)
+- `APP_PORT` (default: `8000`)
 
 ## Main Routes
 

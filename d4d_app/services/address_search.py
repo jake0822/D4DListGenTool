@@ -39,9 +39,9 @@ async def search_leon_county_addresses(query: str) -> list[dict[str, Any]]:
         results.append(
             {
                 "display_name": item.get("display_name"),
-                "street_address": (
-                    address.get("house_number", "").strip() + " " + (address.get("road") or "")
-                ).strip()
+                "street_address": " ".join(
+                    part.strip() for part in [address.get("house_number") or "", address.get("road") or ""] if part and part.strip()
+                )
                 or item.get("name"),
                 "city": address.get("city") or address.get("town") or address.get("village"),
                 "state": address.get("state"),
