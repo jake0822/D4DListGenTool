@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Any
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from d4d_app.models import Lead
-from d4d_app.services.leon_scraper import LeonPropertyLookupService
+from d4d_app.services.leon_scraper import LeonPropertyLookupService, PropertyData
 
 
 def find_existing_lead(db: Session, street_address: str, city: str | None, state: str | None, zip_code: str | None) -> Lead | None:
@@ -79,7 +77,7 @@ def _years_of_ownership(purchase_date: date | None) -> int | None:
     return max(years, 0)
 
 
-def _calculate_lead_score(absentee_owner: bool, years_owned: int | None, property_data: Any) -> int:
+def _calculate_lead_score(absentee_owner: bool, years_owned: int | None, property_data: PropertyData) -> int:
     score = 0
     if absentee_owner:
         score += 25
