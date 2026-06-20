@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-bold mb-4">Driving for Dollars - Leon County, FL</h1>
     <label for="addressSearch" class="block text-sm font-medium mb-2">Search Address</label>
     <input id="addressSearch" type="text" placeholder="Start typing address..." class="w-full text-lg p-4 border rounded-lg" autocomplete="off" aria-label="Search Leon County property address" />
-    <ul id="searchResults" class="border rounded-lg mt-2 hidden bg-white"></ul>
+    <ul id="searchResults" class="border rounded-lg mt-2 hidden bg-white" role="listbox"></ul>
 
     <form method="post" action="/properties/add" class="mt-4" id="addPropertyForm">
         <input type="hidden" name="street_address" id="street_address" />
@@ -23,6 +23,7 @@ const input = document.getElementById('addressSearch');
 const resultsList = document.getElementById('searchResults');
 const addButton = document.getElementById('addButton');
 let selected = null;
+let activeIndex = -1;
 
 const fields = {
   street_address: document.getElementById('street_address'),
@@ -74,7 +75,15 @@ async function searchAddresses(value) {
     const li = document.createElement('li');
     li.textContent = item.display_name;
     li.className = 'p-3 border-b cursor-pointer hover:bg-slate-100';
+    li.setAttribute('role', 'option');
+    li.setAttribute('tabindex', '0');
     li.addEventListener('click', () => applySelection(item));
+    li.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        applySelection(item);
+      }
+    });
     resultsList.appendChild(li);
   });
   resultsList.classList.remove('hidden');
@@ -85,6 +94,30 @@ input.addEventListener('input', (event) => {
   resetSelection();
   clearTimeout(timeout);
   timeout = setTimeout(() => searchAddresses(event.target.value), 250);
+});
+
+input.addEventListener('keydown', (event) => {
+  const options = Array.from(resultsList.querySelectorAll('[role="option"]'));
+  if (event.key === 'Escape') {
+    resultsList.classList.add('hidden');
+    activeIndex = -1;
+    return;
+  }
+
+  if (!options.length) return;
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    activeIndex = (activeIndex + 1) % options.length;
+    options[activeIndex].focus();
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    activeIndex = (activeIndex - 1 + options.length) % options.length;
+    options[activeIndex].focus();
+  } else if (event.key === 'Enter' && activeIndex >= 0) {
+    event.preventDefault();
+    options[activeIndex].click();
+  }
 });
 </script>
 {% endblock %}
