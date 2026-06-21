@@ -224,6 +224,28 @@ def get_mailing_address(session, headers, parcel_id):
 
     return ", ".join(address_parts)
 
+def format_owner_name(owner):
+    """
+    Converts Leon County owner format:
+    OLSEN JAIME AERWYN
+
+    Into:
+    Jaime Aerwyn Olsen
+    """
+
+    if not owner:
+        return "Unknown"
+
+    parts = owner.strip().split()
+
+    if len(parts) < 2:
+        return owner.title()
+
+    last_name = parts[0]
+    remaining_names = parts[1:]
+
+    return " ".join(remaining_names + [last_name]).title()
+
 def main():
 
     with open(
@@ -261,7 +283,7 @@ def main():
 
             if result:
 
-                owner = result.get("Owners", "Unknown")
+                owner = format_owner_name(result.get("Owners", "Unknown"))
                 parcel_id = result.get("ParcelId")
 
                 mailing_address = get_mailing_address(
