@@ -51,8 +51,7 @@ async def add_property(
             "longitude": longitude,
         },
     )
-    return RedirectResponse(url=router.url_path_for("property_detail", lead_id=lead.id), status_code=303)
-
+    return RedirectResponse(url=router.url_path_for("home"), status_code=303)
 
 @router.get("/leads", name="leads_dashboard")
 async def leads_dashboard(request: Request, status: str | None = Query(default=None), db: Session = Depends(get_db)):
